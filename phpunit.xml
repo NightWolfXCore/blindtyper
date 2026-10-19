@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="vendor/autoload.php" colors="true" cacheDirectory=".phpunit.cache" failOnWarning="true" failOnRisky="true">
+  <testsuites>
+    <testsuite name="unit"><directory suffix="Test.php">tests/backend/Unit</directory></testsuite>
+    <testsuite name="integration"><directory suffix="Test.php">tests/backend/Integration</directory></testsuite>
+  </testsuites>
+  <php><env name="APP_ENV" value="test" force="true"/><env name="DB_NAME" value="blindtyper_test" force="true"/></php>
+</phpunit>

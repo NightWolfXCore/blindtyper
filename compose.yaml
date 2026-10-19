@@ -1,0 +1,38 @@
+services:
+  app:
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+    build:
+      context: .
+      dockerfile: docker/php.Dockerfile
+    ports:
+      - "127.0.0.1:${APP_PORT:-8080}:8080"
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      APP_URL: ${APP_URL:-http://localhost:8080}
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-blindtyper}
+      DB_USER: ${DB_USER:-blindtyper}
+      DB_PASSWORD: ${DB_PASSWORD:?Copy .env.example to .env}
+    volumes:
+      - .:/app
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-blindtyper}
+      MYSQL_USER: ${DB_USER:-blindtyper}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Copy .env.example to .env}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Set DB_ROOT_PASSWORD in .env}
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker/init-test-db.sh:/docker-entrypoint-initdb.d/10-test.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=$$MYSQL_PASSWORD mysql --user=$$MYSQL_USER --database=$$MYSQL_DATABASE --execute='SELECT 1' >/dev/null 2>&1"]
+      interval: 3s
+      timeout: 3s
+      retries: 40
+volumes:
+  mysql-data:

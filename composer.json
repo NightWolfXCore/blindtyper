@@ -1,0 +1,34 @@
+{
+  "name": "nightwolfxcore/blindtyper",
+  "description": "Blind typing trainer backend",
+  "type": "project",
+  "require": {
+    "php": "^8.2",
+    "ext-pdo": "*",
+    "ext-pdo_mysql": "*",
+    "ext-mbstring": "*",
+    "ext-intl": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^11.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "BlindTyper\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "BlindTyper\\Tests\\": "tests/backend/"
+    }
+  },
+  "scripts": {
+    "test": "phpunit",
+    "test:unit": "phpunit --testsuite unit",
+    "test:integration": "phpunit --testsuite integration"
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "license": "MIT"
+}
