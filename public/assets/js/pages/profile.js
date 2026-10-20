@@ -3,6 +3,8 @@ import { bonusNames, bonusDescriptions, initLogout } from '../game-ui.js';
 
 initLogout();
 
+document.getElementById('year').textContent = new Date().getFullYear();
+
 async function loadProfile() {
   try {
     const user = await api('/me');

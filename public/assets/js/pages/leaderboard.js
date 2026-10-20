@@ -6,6 +6,8 @@ const tbody = document.getElementById('leaderboard-body');
 const heading = document.getElementById('metric-heading');
 let requestNumber = 0;
 
+document.getElementById('year').textContent = new Date().getFullYear();
+
 async function loadBoard() {
   const currentRequest = ++requestNumber;
   const metric = metricSelect.value;

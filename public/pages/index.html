@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="/assets/vendor/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="/assets/css/effects.css">
   <style>
-    body { background-color: #0f172a; color: #e2e8f0; font-family: sans-serif; }
+    body { background-color: #0f172a; color: #e2e8f0; }
     .text-display { font-family: 'Courier New', monospace; font-size: 1.5rem; line-height: 1.8; letter-spacing: 2px; background: #1e293b; padding: 2rem; border-radius: 1rem; border: 1px solid #334155; }
     .char { color: #fff; white-space: pre-wrap; } /* Ожидаемый символ */
     .char.correct { color: #10b981; } /* Правильный */
@@ -18,8 +18,9 @@
     .stat-box .text-muted { color: #e2e8f0 !important; }
   </style>
 </head>
-<body class="min-vh-100 p-4">
-  <main class="container" style="max-width: 900px;">
+<body>
+<div class="d-flex flex-column min-vh-100">
+  <main class="container mt-4 px-0" style="max-width: 900px;">
     <nav class="mb-4 d-flex gap-2 flex-wrap"><a id="login-link" href="/login" class="btn btn-outline-light">Войти</a><a id="profile-link" href="/profile" class="btn btn-outline-light d-none">Профиль</a><a href="/leaderboard" class="btn btn-outline-light">Рейтинг</a><button id="logout-btn" type="button" class="btn btn-outline-light d-none">Выйти</button></nav>
     <h1 id="greeting" class="h3 text-light mb-2">Добро пожаловать в BlindTyper!</h1>
     <p id="level-status" class="text-light mb-3" aria-live="polite">Загрузка уровня…</p>
@@ -81,6 +82,9 @@
       </div>
     </div>
   </main>
+  <footer class="d-flex justify-content-center py-3 px-auto mx-auto mt-auto w-100" style="max-width: 800px;">
+      <span class="fst-italic"> &reg; ДрайвКод <span id="year">year</span> </span>
+  </footer>
 
   <div id="start-countdown" class="start-countdown d-none" role="status" aria-live="assertive" aria-atomic="true">
     <div class="start-countdown-content">
@@ -88,6 +92,8 @@
       <strong id="start-countdown-value">3</strong>
     </div>
   </div>
+
+</div>
 
   <script type="module" src="../assets/js/pages/trainer.js"></script>
 </body>

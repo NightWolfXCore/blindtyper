@@ -12,8 +12,9 @@
     .text-muted { color: #e2e8f0 !important; }
   </style>
 </head>
-<body class="p-4">
-  <main class="container" style="max-width: 800px;">
+<body>
+<div class="d-flex flex-column min-vh-100">
+  <main class="container mt-4 px-0" style="max-width: 800px;">
     <nav class="mb-4 d-flex justify-content-between align-items-center">
       <h1 class="h3 text-light m-0">Мой профиль</h1>
       <div class="d-flex gap-2 flex-wrap">
@@ -54,7 +55,10 @@
       <!-- Сюда JS вставит карточки достижений -->
     </div>
   </main>
-
-  <script type="module" src="../assets/js/pages/profile.js"></script>
+  <footer class="d-flex justify-content-center py-3 px-auto mx-auto mt-auto w-100" style="max-width: 800px;">
+      <span class="fst-italic"> &reg; ДрайвКод <span id="year">year</span> </span>
+  </footer>
+</div>
+<script type="module" src="../assets/js/pages/profile.js"></script>
 </body>
 </html>

@@ -56,7 +56,7 @@ export function initLogout() {
     button.disabled = true;
     try {
       await api('/auth/logout', { method: 'POST' });
-      window.location.assign('/login');
+      window.location.assign('/');
     } catch (error) {
       notify(error.message || 'Не удалось выйти из аккаунта', 'error');
       button.disabled = false;

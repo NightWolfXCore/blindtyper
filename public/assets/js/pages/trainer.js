@@ -30,6 +30,7 @@ const countdownValue = document.getElementById('start-countdown-value');
 const wrongSound = new Audio('/assets/audio/wrong.mp3');
 const victorySound = new Audio('/assets/audio/correct.mp3');
 const countdownSound = new Audio('/assets/audio/3-2-1-countdown.mp3');
+
 wrongSound.volume = .22;
 victorySound.volume = .55;
 countdownSound.volume = .55;
@@ -53,12 +54,15 @@ let lastWrongSound = 0;
 
 initLogout();
 
+document.getElementById('year').textContent = new Date().getFullYear();
+
 function playSound(sound) {
   try {
     sound.currentTime = 0;
     sound.play().catch(() => {});
   } catch { /* Sound is optional if the browser blocks playback. */ }
 }
+
 
 async function showStartCountdown() {
   countdownOverlay.classList.remove('d-none');
