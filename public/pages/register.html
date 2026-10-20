@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Регистрация — BlindTyper</title>
+  <link rel="stylesheet" href="assets/vendor/bootstrap-icons-1.13.2/bootstrap-icons.min.css">
   <link rel="stylesheet" href="/assets/vendor/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="/assets/css/auth.css">
 </head>
@@ -11,7 +12,12 @@
   <main class="container" style="max-width: 480px;">
     <div class="card shadow-sm">
       <div class="card-body p-4">
-        <h1 class="h4 mb-1">Регистрация</h1>
+          <div class="d-flex flex-row justify-content-between">
+              <h1 class="flex-grow-2 h4 mb-1">Регистрация</h1>
+              <button class="btn" id="btn-exit">
+                  <i class="bi bi-x-lg"></i>
+              </button>
+          </div>
         <p class="text-secondary mb-4">Создайте аккаунт, чтобы сохранять прогресс.</p>
 
         <div id="form-error" class="alert alert-danger d-none" role="alert"></div>
@@ -35,7 +41,7 @@
             <label for="password" class="form-label">Пароль</label>
             <input type="password" class="form-control" id="password" name="password"
                    autocomplete="new-password" required minlength="10">
-            <div class="form-text">От 10 до 72 байт (например, 10 латинских букв).</div>
+            <div class="form-text">От 10 до 72 символов (например, 10 латинских букв).</div>
           </div>
 
           <button type="submit" class="btn btn-primary w-100" id="submit-btn">
@@ -50,6 +56,6 @@
     </div>
   </main>
 
-  <script type="module" src="/assets/js/pages/register.js"></script>
+  <script type="module" src="../assets/js/pages/register.js"></script>
 </body>
 </html>

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Вход — BlindTyper</title>
-  <!-- Bootstrap 5 подключён локально, как требует architecture.md -->
+  <link rel="stylesheet" href="assets/vendor/bootstrap-icons-1.13.2/bootstrap-icons.min.css">
   <link rel="stylesheet" href="/assets/vendor/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="/assets/css/auth.css">
 </head>
@@ -12,7 +12,12 @@
   <main class="container" style="max-width: 440px;">
     <div class="card shadow-sm">
       <div class="card-body p-4">
-        <h1 class="h4 mb-1">Вход</h1>
+          <div class="d-flex flex-row justify-content-between">
+              <h1 class="h4 mb-1">Вход</h1>
+              <button class="btn" id="btn-exit">
+                  <i class="bi bi-x-lg"></i>
+              </button>
+          </div>
         <p class="text-secondary mb-4">Введите email и пароль, чтобы продолжить.</p>
 
         <div id="form-error" class="alert alert-danger d-none" role="alert"></div>
@@ -43,6 +48,6 @@
     </div>
   </main>
 
-  <script type="module" src="/assets/js/pages/login.js"></script>
+  <script type="module" src="../assets/js/pages/login.js"></script>
 </body>
 </html>

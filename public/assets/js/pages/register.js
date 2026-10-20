@@ -4,6 +4,16 @@ import { api, isApiError } from '../api.js';
 const form = document.getElementById('register-form');
 const errorBox = document.getElementById('form-error');
 const submitBtn = document.getElementById('submit-btn');
+const exitBtn = document.getElementById('btn-exit');
+// const backBtn = document.getElementById('btn-back');
+
+// backBtn.addEventListener('click', () => {
+//   window.history.back();
+// });
+
+exitBtn.addEventListener('click', () => {
+  window.location.assign('/');
+});
 
 function showError(message) {
   errorBox.textContent = message;
