@@ -122,6 +122,14 @@ final class ScoringTest extends TestCase
         self::assertSame(['total_xp' => $xp, 'level' => $level, 'next_level_xp' => $next], Rules::progress($xp));
     }
 
+    public function testCatalogReportsModeRequirements(): void
+    {
+        $newPlayer = Rules::catalog(0)['modes'];
+        self::assertSame([1, 2, 3, 4], array_column($newPlayer, 'required_level'));
+        self::assertSame([true, false, false, false], array_column($newPlayer, 'unlocked'));
+        self::assertSame([true, true, true, true], array_column(Rules::catalog(900)['modes'], 'unlocked'));
+    }
+
     public function testOverspeedIsUnranked(): void
     {
         $s = new Scoring();

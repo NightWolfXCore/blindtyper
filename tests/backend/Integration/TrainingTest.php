@@ -61,7 +61,7 @@ final class TrainingTest extends DatabaseTestCase
             foreach ($mode === 'code' ? ['en'] : ['ru', 'en'] as $language) {
                 foreach (['easy', 'medium', 'hard'] as $difficulty) {
                     foreach ([120, 240, 1200] as $length) {
-                        foreach ($mode === 'code' ? ['python', 'javascript', 'html', 'css'] : [null] as $code) {
+                        foreach ($mode === 'code' ? \BlindTyper\Domain\Rules::CODE_LANGUAGES : [null] as $code) {
                             try {
                                 $s = $this->create($id, ['mode' => $mode, 'language' => $language, 'difficulty' => $difficulty, 'length' => $length, 'code_language' => $code]);
                             } catch (ApiException $e) {
@@ -69,6 +69,11 @@ final class TrainingTest extends DatabaseTestCase
                             }
                             self::assertGreaterThanOrEqual($length === 1200 ? 1000 : (int) floor($length * .8), $s['text_length']);
                             self::assertLessThanOrEqual((int) ceil($length * 1.2), $s['text_length']);
+                            if ($code === 'mixed') {
+                                foreach (['Python:', 'JavaScript:', 'HTML:', 'CSS:'] as $label) {
+                                    self::assertStringContainsString($label, $s['text']);
+                                }
+                            }
                         }
                     }
                 }

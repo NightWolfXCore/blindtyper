@@ -21,7 +21,7 @@ async function loadProfile() {
       const column = document.createElement('div');
       column.className = 'col-md-4';
       const card = document.createElement('div');
-      card.className = `card h-100 ${a.unlocked_at ? 'border-success' : 'opacity-50'}`;
+      card.className = `card h-100 ${a.unlocked_at ? 'border-success' : 'border-secondary'}`;
       const body = document.createElement('div');
       body.className = 'card-body';
       const title = document.createElement('h6');

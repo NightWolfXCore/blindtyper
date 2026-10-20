@@ -19,7 +19,7 @@ return static function (Database $db): void {
         foreach (($mode === 'code' ? ['en'] : Rules::LANGUAGES) as $language) {
             foreach (Rules::DIFFICULTIES as $difficulty) {
                 foreach (Rules::LENGTHS as $length) {
-                    foreach (($mode === 'code' ? Rules::CODE_LANGUAGES : [null]) as $code) {
+                    foreach (($mode === 'code' ? array_values(array_diff(Rules::CODE_LANGUAGES, ['mixed'])) : [null]) as $code) {
                         $base = match($mode) {
                             'words' => $language === 'ru' ? 'дом кот мир река книга лес ' : 'home cat tree sky ',
                             'sentences' => $language === 'ru' ? 'Печатать полезно. ' : 'Practice every day. ',

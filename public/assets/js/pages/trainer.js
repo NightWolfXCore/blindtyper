@@ -13,6 +13,10 @@ const difficultySelect = document.getElementById('difficulty-select');
 const lengthSelect = document.getElementById('length-select');
 const codeLanguageSelect = document.getElementById('code-language-select');
 const codeLanguageField = document.getElementById('code-language-field');
+const loginLink = document.getElementById('login-link');
+const profileLink = document.getElementById('profile-link');
+const levelStatus = document.getElementById('level-status');
+const modeHelp = document.getElementById('mode-help');
 
 let session = null;
 let characters = [];
@@ -25,6 +29,8 @@ let combo = 0;
 let maxCombo = 0;
 let saving = false;
 let finished = false;
+let modes = [];
+let currentLevel = 1;
 
 function showMessage(text, isError = false) {
   message.textContent = text;
@@ -45,25 +51,51 @@ function syncMode() {
   codeLanguageField.classList.toggle('d-none', !code);
   languageSelect.disabled = code;
   if (code) languageSelect.value = 'en';
+  const selected = modes.find(mode => mode.id === modeSelect.value);
+  if (selected) {
+    modeHelp.textContent = selected.unlocked
+      ? `Режим доступен с уровня ${selected.required_level}. Ваш уровень: ${currentLevel}.`
+      : `Режим откроется на уровне ${selected.required_level}. Ваш уровень: ${currentLevel}.`;
+    startBtn.disabled = !selected.unlocked;
+  }
 }
 
 async function loadCatalog() {
   try {
     const catalog = await api('/catalog');
-    fill(modeSelect, catalog.modes.map(mode => mode.id), {
+    modes = catalog.modes;
+    const names = {
       words: 'Слова', sentences: 'Предложения', symbols: 'Символы', code: 'Код',
-    });
-    for (const mode of catalog.modes) {
-      modeSelect.querySelector(`[value="${mode.id}"]`).disabled = !mode.unlocked;
-    }
+    };
+    fill(modeSelect, modes.map(mode => mode.id), Object.fromEntries(
+      modes.map(mode => [mode.id, `${names[mode.id]} · с уровня ${mode.required_level}`])
+    ));
     fill(languageSelect, catalog.languages, { ru: 'Русский', en: 'English' });
     fill(difficultySelect, catalog.difficulties, { easy: 'Легко', medium: 'Средне', hard: 'Сложно' });
     fill(lengthSelect, catalog.lengths.map(String), Object.fromEntries(catalog.lengths.map(n => [n, `${n} символов`])));
-    fill(codeLanguageSelect, catalog.code_languages);
+    fill(codeLanguageSelect, catalog.code_languages, {
+      python: 'Python', javascript: 'JavaScript', html: 'HTML', css: 'CSS', mixed: 'Все языки вместе',
+    });
     syncMode();
-    startBtn.disabled = false;
   } catch (error) {
     showMessage(error.message || 'Не удалось загрузить каталог', true);
+  }
+}
+
+async function loadIdentity() {
+  try {
+    const user = await api('/me');
+    currentLevel = user.level;
+    levelStatus.textContent = `Ваш уровень: ${user.level} · Опыт: ${user.total_xp} XP`;
+    profileLink.textContent = `${user.display_name} · профиль`;
+    profileLink.classList.remove('d-none');
+    loginLink.classList.add('d-none');
+    syncMode();
+  } catch (error) {
+    levelStatus.textContent = error.status === 401
+      ? 'Вы не вошли в аккаунт. Войдите, чтобы сохранять прогресс.'
+      : 'Не удалось загрузить ваш уровень.';
+    if (error.status !== 401) profileLink.classList.remove('d-none');
   }
 }
 
@@ -142,6 +174,7 @@ function typeCharacter(char) {
 
 startBtn.disabled = true;
 loadCatalog();
+loadIdentity();
 modeSelect.addEventListener('change', syncMode);
 textContainer.addEventListener('click', () => hiddenInput.focus());
 startBtn.addEventListener('click', async () => {

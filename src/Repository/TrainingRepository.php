@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BlindTyper\Repository;
 
 use BlindTyper\Domain\Rules;
+use BlindTyper\Domain\MixedCodeExercise;
 use BlindTyper\Http\ApiException;
 use BlindTyper\Support\Time;
 
@@ -22,6 +23,9 @@ final class TrainingRepository
 
     public function exercise(array $options): array
     {
+        if ($options['mode'] === 'code' && $options['code_language'] === 'mixed') {
+            return MixedCodeExercise::make($options['difficulty'], $options['length']);
+        }
         $low = (int) floor($options['length'] * .8);
         $high = (int) ceil($options['length'] * 1.2);
         if ($options['length'] === 1200) {
