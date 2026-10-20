@@ -66,6 +66,23 @@ final class ScoringTest extends TestCase
         $e = $s->events([['seq' => 1, 'at_ms' => 999, 'char' => 'a'], ['seq' => 2, 'at_ms' => 1000, 'char' => 'a'], ['seq' => 3, 'at_ms' => 2000, 'char' => 'a']]);
         $r = $s->calculate('aaa', $e, [['type' => 'double_xp', 'starts_at_ms' => 1000, 'ends_at_ms' => 2000]], 3000);
         self::assertSame(4, $r['result']['xp_earned']);
+        self::assertSame(['double_xp'], $r['result']['bonuses_applied']);
+    }
+
+    public function testSpeedBonusAddsHalfXpButDoesNotAlterMeasuredSpeed(): void
+    {
+        $scoring = new Scoring();
+        $events = $scoring->events([
+            ['seq' => 1, 'at_ms' => 1000, 'char' => 'a'],
+            ['seq' => 2, 'at_ms' => 2000, 'char' => 'a'],
+            ['seq' => 3, 'at_ms' => 3000, 'char' => 'a'],
+        ]);
+        $bonus = [['type' => 'speed_boost', 'starts_at_ms' => 1000, 'ends_at_ms' => 3000]];
+        $result = $scoring->calculate('aaa', $events, $bonus, 3000)['result'];
+        self::assertSame(4, $result['xp_earned']);
+        self::assertSame(['speed_boost'], $result['bonuses_applied']);
+        self::assertSame(60.0, $result['cpm']);
+        self::assertSame(12.0, $result['wpm']);
     }
 
     public static function invalidEvents(): array
@@ -120,6 +137,14 @@ final class ScoringTest extends TestCase
     public function testLevels(int $xp, int $level, int $next): void
     {
         self::assertSame(['total_xp' => $xp, 'level' => $level, 'next_level_xp' => $next], Rules::progress($xp));
+    }
+
+    public function testCatalogReportsModeRequirements(): void
+    {
+        $newPlayer = Rules::catalog(0)['modes'];
+        self::assertSame([1, 2, 3, 4], array_column($newPlayer, 'required_level'));
+        self::assertSame([true, false, false, false], array_column($newPlayer, 'unlocked'));
+        self::assertSame([true, true, true, true], array_column(Rules::catalog(900)['modes'], 'unlocked'));
     }
 
     public function testOverspeedIsUnranked(): void

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Рейтинг — BlindTyper</title>
+  <link rel="stylesheet" href="/assets/vendor/bootstrap/css/bootstrap.min.css">
+  <style>
+    body { background-color: #0f172a; color: #e2e8f0; }
+    .table { color: #e2e8f0; }
+    .table-hover tbody tr:hover { color: #fff; background-color: #1e293b; }
+    .table-dark { --bs-table-bg: #1e293b; }
+  </style>
+</head>
+<body>
+<div class="d-flex flex-column min-vh-100">
+  <main class="container mt-4 px-0" style="max-width: 800px;">
+    <nav class="mb-4 d-flex justify-content-between align-items-center">
+      <h1 class="h3 text-light m-0">Таблица лидеров</h1>
+      <a href="/profile" class="btn btn-outline-light">В профиль</a>
+    </nav>
+
+    <div class="row g-3 mb-3">
+      <div class="col-sm-6"><label class="form-label text-light" for="metric-select">Тип рейтинга</label><select id="metric-select" class="form-select bg-dark text-light border-secondary"><option value="wpm">Скорость · WPM</option><option value="cpm">Скорость · CPM</option><option value="accuracy">Точность</option><option value="xp">Опыт · XP</option></select></div>
+      <div class="col-sm-6"><label class="form-label text-light" for="period-select">Период</label><select id="period-select" class="form-select bg-dark text-light border-secondary"><option value="today">Сегодня</option><option value="week" selected>Эта неделя</option><option value="all">Всё время</option></select></div>
+    </div>
+    <p class="small text-light">Периоды считаются по UTC. Скорость и точность — лучший результат игрока за период, XP — сумма опыта. В рейтинг попадают только зачётные тренировки.</p>
+    <div class="card bg-transparent border-secondary">
+      <div class="card-body p-0">
+        <table class="table table-dark table-hover mb-0 text-center align-middle">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Игрок</th>
+              <th id="metric-heading">WPM</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboard-body">
+            <tr><td colspan="3" class="text-light py-4">Загрузка...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+  <footer class="d-flex justify-content-center py-3 px-auto mx-auto mt-auto w-100" style="max-width: 800px;">
+      <span class="fst-italic"> &reg; ДрайвКод <span id="year">year</span> </span>
+  </footer>
+</div>
+  <script type="module" src="../assets/js/pages/leaderboard.js"></script>
+</body>
+</html>

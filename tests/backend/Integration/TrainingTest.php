@@ -29,6 +29,18 @@ final class TrainingTest extends DatabaseTestCase
         }
     }
 
+    public function testEarnedBonusesAppearInPrivateHistory(): void
+    {
+        $id = $this->player();
+        $other = $this->player('bonus-other@example.org');
+        $session = $this->create($id);
+        $type = $session['bonuses'][0]['type'];
+        $result = $this->complete($id, $session);
+        self::assertSame([$type], $result['result']['bonuses_applied']);
+        self::assertSame($type, $this->read->bonuses($id)['items'][0]['type']);
+        self::assertSame([], $this->read->bonuses($other)['items']);
+    }
+
     public function testOwnershipAndLockedModes(): void
     {
         $id = $this->player();
@@ -61,7 +73,7 @@ final class TrainingTest extends DatabaseTestCase
             foreach ($mode === 'code' ? ['en'] : ['ru', 'en'] as $language) {
                 foreach (['easy', 'medium', 'hard'] as $difficulty) {
                     foreach ([120, 240, 1200] as $length) {
-                        foreach ($mode === 'code' ? ['python', 'javascript', 'html', 'css'] : [null] as $code) {
+                        foreach ($mode === 'code' ? \BlindTyper\Domain\Rules::CODE_LANGUAGES : [null] as $code) {
                             try {
                                 $s = $this->create($id, ['mode' => $mode, 'language' => $language, 'difficulty' => $difficulty, 'length' => $length, 'code_language' => $code]);
                             } catch (ApiException $e) {
@@ -69,6 +81,11 @@ final class TrainingTest extends DatabaseTestCase
                             }
                             self::assertGreaterThanOrEqual($length === 1200 ? 1000 : (int) floor($length * .8), $s['text_length']);
                             self::assertLessThanOrEqual((int) ceil($length * 1.2), $s['text_length']);
+                            if ($code === 'mixed') {
+                                foreach (['Python:', 'JavaScript:', 'HTML:', 'CSS:'] as $label) {
+                                    self::assertStringContainsString($label, $s['text']);
+                                }
+                            }
                         }
                     }
                 }

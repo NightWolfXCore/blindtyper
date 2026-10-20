@@ -1,0 +1,10 @@
+body {
+    color: #212529;
+}
+#btn-exit:hover {
+    border-color: #B2BEB5 ;
+}
+#btn-exit:active {
+    background-color: #e0e0e0;
+    border-color: #000000;
+}

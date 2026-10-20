@@ -22,6 +22,21 @@ final class ReadRepository
         return ['items' => $rows];
     }
 
+    public function bonuses(int $userId): array
+    {
+        $rows = $this->db->all("SELECT finished_at,finish_response FROM training_sessions
+            WHERE user_id=? AND status='finished' AND JSON_LENGTH(JSON_EXTRACT(finish_response, '$.result.bonuses_applied')) > 0
+            ORDER BY finished_at DESC,id DESC LIMIT 10", [$userId]);
+        $items = [];
+        foreach ($rows as $row) {
+            $result = json_decode($row['finish_response'], true, 512, JSON_THROW_ON_ERROR)['result'];
+            foreach ($result['bonuses_applied'] as $type) {
+                $items[] = ['type' => $type, 'earned_at' => Time::iso($row['finished_at'])];
+            }
+        }
+        return ['items' => $items];
+    }
+
     public function stats(int $userId, int $days): array
     {
         $today = $this->clock->now()->setTime(0, 0);

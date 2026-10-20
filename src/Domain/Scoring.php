@@ -51,7 +51,8 @@ final class Scoring
         if ($chars === []) {
             throw new \RuntimeException('Empty exercise snapshot');
         }
-        $correct = $errors = $streak = $maxCombo = $xp = 0;
+        $correct = $errors = $streak = $maxCombo = $xpHalfUnits = 0;
+        $bonusesApplied = [];
         $stats = [];
         foreach ($events as [, $at, $char]) {
             if ($correct >= count($chars)) {
@@ -71,13 +72,19 @@ final class Scoring
             $correct++;
             $streak++;
             $maxCombo = max($maxCombo, $streak);
-            $bonusMultiplier = 1;
+            $bonusMultiplierHalfUnits = 2;
             foreach ($bonuses as $bonus) {
-                if ($bonus['type'] === 'double_xp' && $at >= $bonus['starts_at_ms'] && $at < $bonus['ends_at_ms']) {
-                    $bonusMultiplier = 2;
+                if ($at >= $bonus['starts_at_ms'] && $at < $bonus['ends_at_ms']) {
+                    if ($bonus['type'] === 'double_xp') {
+                        $bonusMultiplierHalfUnits = 4;
+                        $bonusesApplied['double_xp'] = true;
+                    } elseif ($bonus['type'] === 'speed_boost') {
+                        $bonusMultiplierHalfUnits = 3;
+                        $bonusesApplied['speed_boost'] = true;
+                    }
                 }
             }
-            $xp += Rules::multiplier($streak) * $bonusMultiplier;
+            $xpHalfUnits += Rules::multiplier($streak) * $bonusMultiplierHalfUnits;
         }
         if ($correct !== count($chars)) {
             throw ApiException::validation('Текст не завершён');
@@ -87,7 +94,8 @@ final class Scoring
         return ['result' => ['duration_ms' => $duration, 'correct' => $correct, 'errors' => $errors,
             'attempts' => $correct + $errors, 'cpm' => round($cpm, 2), 'wpm' => round($cpm / 5, 2),
             'accuracy' => round(100 * $correct / ($correct + $errors), 2), 'max_combo' => $maxCombo,
-            'xp_earned' => $xp, 'ranked' => $reason === null, 'unranked_reason' => $reason],
+            'xp_earned' => intdiv($xpHalfUnits + 1, 2), 'bonuses_applied' => array_keys($bonusesApplied),
+            'ranked' => $reason === null, 'unranked_reason' => $reason],
             'character_stats' => array_values($stats), 'raw_cpm' => $cpm];
     }
 }

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Тренажер — BlindTyper</title>
+  <link rel="stylesheet" href="/assets/vendor/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/assets/css/effects.css">
+  <style>
+    body { background-color: #0f172a; color: #e2e8f0; }
+    .text-display { font-family: 'Courier New', monospace; font-size: 1.5rem; line-height: 1.8; letter-spacing: 2px; background: #1e293b; padding: 2rem; border-radius: 1rem; border: 1px solid #334155; }
+    .char { color: #fff; white-space: pre-wrap; } /* Ожидаемый символ */
+    .char.correct { color: #10b981; } /* Правильный */
+    .char.incorrect { color: #ef4444; background: rgba(239, 68, 68, 0.2); border-radius: 3px; } /* Ошибка */
+    .char.active { border-bottom: 2px solid #3b82f6; } /* Текущий символ */
+    .stat-box { background: #1e293b; border-radius: 0.5rem; padding: 1rem; text-align: center; }
+    .stat-value { font-size: 2rem; font-weight: bold; color: #3b82f6; }
+    .stat-box .text-muted { color: #e2e8f0 !important; }
+  </style>
+</head>
+<body>
+<div class="d-flex flex-column min-vh-100">
+  <main class="container mt-4 px-0" style="max-width: 900px;">
+    <nav class="mb-4 d-flex gap-2 flex-wrap"><a id="login-link" href="/login" class="btn btn-outline-light">Войти</a><a id="profile-link" href="/profile" class="btn btn-outline-light d-none">Профиль</a><a href="/leaderboard" class="btn btn-outline-light">Рейтинг</a><button id="logout-btn" type="button" class="btn btn-outline-light d-none">Выйти</button></nav>
+    <h1 id="greeting" class="h3 text-light mb-2">Добро пожаловать в BlindTyper!</h1>
+    <p id="level-status" class="text-light mb-3" aria-live="polite">Загрузка уровня…</p>
+    <section class="bonus-card mb-3" aria-live="polite"><h2 class="h6 mb-1">Бонусы</h2><p id="home-bonuses">Во время тренировки может появиться случайный бонус.</p></section>
+    <div id="training-message" class="alert alert-info d-none" role="status"></div>
+    <!-- Настройки (появляются до старта) -->
+    <div id="setup-panel" class="card bg-dark border-secondary mb-4">
+      <div class="card-body">
+        <h2 class="h4 text-light mb-4">Настройка тренировки</h2>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <select id="mode-select" class="form-select bg-dark text-light border-secondary">
+              <option value="words">Слова</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <select id="lang-select" class="form-select bg-dark text-light border-secondary">
+              <option value="ru">Русский</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <select id="difficulty-select" class="form-select bg-dark text-light border-secondary" aria-label="Сложность"></select>
+          </div>
+          <div class="col-md-4">
+            <select id="length-select" class="form-select bg-dark text-light border-secondary" aria-label="Длина"></select>
+          </div>
+          <div class="col-md-4 d-none" id="code-language-field">
+            <select id="code-language-select" class="form-select bg-dark text-light border-secondary" aria-label="Язык кода"></select>
+          </div>
+          <div class="col-md-4">
+            <button id="start-btn" class="btn btn-primary w-100">Начать печатать</button>
+          </div>
+        </div>
+        <p id="mode-help" class="text-light mt-3 mb-0" aria-live="polite"></p>
+      </div>
+    </div>
+
+    <!-- Зона печати -->
+    <div id="typing-panel" class="d-none">
+      <div class="row mb-3 g-2">
+        <div class="col"><div class="stat-box"><div class="stat-value" id="ui-wpm">0</div><div class="text-muted small">WPM</div></div></div>
+        <div class="col"><div class="stat-box"><div class="stat-value" id="ui-accuracy">100%</div><div class="text-muted small">Точность</div></div></div>
+        <div class="col"><div class="stat-box"><div class="stat-value" id="ui-combo">0</div><div class="text-muted small">Комбо</div></div></div>
+      </div>
+
+      <div class="bonus-card mb-3" id="session-bonus" aria-live="polite"><strong id="session-bonus-name">Бонус ожидается</strong><p id="session-bonus-detail" class="small mt-1">Продолжайте печатать, чтобы его открыть.</p></div>
+
+      <div class="text-display mb-3" id="text-container">
+        <!-- Сюда JS вставит текст -->
+      </div>
+
+      <!-- Скрытый инпут для перехвата клавиш -->
+      <textarea id="hidden-input" class="opacity-0 position-absolute" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Поле ввода текста" style="width: 1px; height: 1px;"></textarea>
+      
+      <div class="text-center mt-4 d-flex flex-wrap justify-content-center gap-2">
+        <button id="finish-btn" class="btn btn-outline-light" type="button">Новая тренировка</button>
+        <button id="repeat-btn" class="btn btn-outline-success d-none" type="button">Ещё раз с теми же настройками</button>
+      </div>
+    </div>
+  </main>
+  <footer class="d-flex justify-content-center py-3 px-auto mx-auto mt-auto w-100" style="max-width: 800px;">
+      <span class="fst-italic"> &reg; ДрайвКод <span id="year">year</span> </span>
+  </footer>
+
+  <div id="start-countdown" class="start-countdown d-none" role="status" aria-live="assertive" aria-atomic="true">
+    <div class="start-countdown-content">
+      <p class="mb-2">Приготовьтесь печатать</p>
+      <strong id="start-countdown-value">3</strong>
+    </div>
+  </div>
+
+</div>
+
+  <script type="module" src="../assets/js/pages/trainer.js"></script>
+</body>
+</html>

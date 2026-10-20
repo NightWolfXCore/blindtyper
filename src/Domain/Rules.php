@@ -13,7 +13,7 @@ final class Rules
     public const MODES = ['words' => 1, 'sentences' => 2, 'symbols' => 3, 'code' => 4];
     public const LANGUAGES = ['ru', 'en'];
     public const DIFFICULTIES = ['easy', 'medium', 'hard'];
-    public const CODE_LANGUAGES = ['python', 'javascript', 'html', 'css'];
+    public const CODE_LANGUAGES = ['python', 'javascript', 'html', 'css', 'mixed'];
     public const LENGTHS = [120, 240, 1200];
 
     public static function progress(int $xp): array

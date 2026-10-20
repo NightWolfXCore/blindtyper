@@ -123,6 +123,7 @@ final class HttpTest extends DatabaseTestCase
         self::assertSame(1, $this->request('GET', '/sessions')[1]['data']['total']);
         self::assertSame(1, $this->request('GET', '/me/stats?days=7')[1]['data']['totals']['training_count']);
         self::assertSame(3, count($this->request('GET', '/me/achievements')[1]['data']['items']));
+        self::assertSame(200, $this->request('GET', '/me/bonuses')[0]);
         $xp = $this->request('GET', '/me')[1]['data']['total_xp'];
         self::assertSame(200, $this->request('POST', '/auth/logout', new \stdClass())[0]);
         self::assertSame(401, $this->request('GET', '/me')[0]);
