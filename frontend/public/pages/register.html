@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Регистрация — BlindTyper</title>
+  <link rel="stylesheet" href="/assets/vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="/assets/css/auth.css">
+</head>
+<body class="bg-body-tertiary d-flex align-items-center min-vh-100">
+  <main class="container" style="max-width: 480px;">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h1 class="h4 mb-1">Регистрация</h1>
+        <p class="text-secondary mb-4">Создайте аккаунт, чтобы сохранять прогресс.</p>
+
+        <div id="form-error" class="alert alert-danger d-none" role="alert"></div>
+
+        <form id="register-form" novalidate>
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email"
+                   autocomplete="username" required maxlength="254">
+            <div class="form-text">До 254 символов.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="display_name" class="form-label">Отображаемое имя</label>
+            <input type="text" class="form-control" id="display_name" name="display_name"
+                   autocomplete="nickname" required minlength="2" maxlength="40">
+            <div class="form-text">От 2 до 40 символов.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="password" class="form-label">Пароль</label>
+            <input type="password" class="form-control" id="password" name="password"
+                   autocomplete="new-password" required minlength="10">
+            <div class="form-text">От 10 до 72 байт (например, 10 латинских букв).</div>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100" id="submit-btn">
+            Создать аккаунт
+          </button>
+        </form>
+
+        <p class="text-center text-secondary mt-4 mb-0">
+          Уже есть аккаунт? <a href="/login">Войти</a>
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="/assets/js/pages/register.js"></script>
+</body>
+</html>
