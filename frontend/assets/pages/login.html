@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Вход — BlindTyper</title>
+  <!-- Bootstrap 5 подключён локально, как требует architecture.md -->
+  <link rel="stylesheet" href="/assets/vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="/assets/css/auth.css">
+</head>
+<body class="bg-body-tertiary d-flex align-items-center min-vh-100">
+  <main class="container" style="max-width: 440px;">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h1 class="h4 mb-1">Вход</h1>
+        <p class="text-secondary mb-4">Введите email и пароль, чтобы продолжить.</p>
+
+        <div id="form-error" class="alert alert-danger d-none" role="alert"></div>
+
+        <form id="login-form" novalidate>
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email"
+                   autocomplete="username" required maxlength="254">
+            <div class="invalid-feedback">Введите корректный email.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="password" class="form-label">Пароль</label>
+            <input type="password" class="form-control" id="password" name="password"
+                   autocomplete="current-password" required minlength="1">
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100" id="submit-btn">
+            Войти
+          </button>
+        </form>
+
+        <p class="text-center text-secondary mt-4 mb-0">
+          Нет аккаунта? <a href="/register">Зарегистрироваться</a>
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="/assets/js/pages/login.js"></script>
+</body>
+</html>
