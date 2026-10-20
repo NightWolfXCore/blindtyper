@@ -7,6 +7,7 @@ const textContainer = document.getElementById('text-container');
 const hiddenInput = document.getElementById('hidden-input');
 const startBtn = document.getElementById('start-btn');
 const finishBtn = document.getElementById('finish-btn');
+const repeatBtn = document.getElementById('repeat-btn');
 const message = document.getElementById('training-message');
 const modeSelect = document.getElementById('mode-select');
 const languageSelect = document.getElementById('lang-select');
@@ -27,10 +28,10 @@ const logoutBtn = document.getElementById('logout-btn');
 const countdownOverlay = document.getElementById('start-countdown');
 const countdownValue = document.getElementById('start-countdown-value');
 const wrongSound = new Audio('/assets/audio/wrong.mp3');
-const levelSound = new Audio('/assets/audio/correct.mp3');
+const victorySound = new Audio('/assets/audio/correct.mp3');
 const countdownSound = new Audio('/assets/audio/3-2-1-countdown.mp3');
 wrongSound.volume = .22;
-levelSound.volume = .55;
+victorySound.volume = .55;
 countdownSound.volume = .55;
 
 let session = null;
@@ -222,9 +223,9 @@ async function saveResult() {
     document.getElementById('ui-accuracy').textContent = `${Math.round(result.result.accuracy)}%`;
     document.getElementById('ui-combo').textContent = String(result.result.max_combo);
     showMessage(`Результат сохранён: ${result.result.xp_earned} XP. Скорость ${Math.round(result.result.cpm)} CPM.`);
+    playSound(victorySound);
+    celebrate();
     if (result.progress.level > currentLevel) {
-      playSound(levelSound);
-      celebrate();
       notify(`Новый уровень: ${result.progress.level}!`, 'success');
     }
     for (const achievement of result.new_achievements || []) {
@@ -234,6 +235,10 @@ async function saveResult() {
     levelStatus.textContent = `Ваш уровень: ${result.progress.level} · Опыт: ${result.progress.total_xp} XP`;
     loadBonusHistory();
     finishBtn.textContent = 'Новая тренировка';
+    finishBtn.classList.remove('btn-outline-light');
+    finishBtn.classList.add('btn-success');
+    repeatBtn.disabled = false;
+    repeatBtn.classList.remove('d-none');
   } catch (error) {
     showMessage(`${error.message || 'Не удалось сохранить результат'}. Повторите сохранение.`, true);
     finishBtn.textContent = 'Повторить сохранение';
@@ -284,8 +289,14 @@ modeSelect.addEventListener('change', syncMode);
 textContainer.addEventListener('click', () => {
   if (startedAt && !finished) hiddenInput.focus();
 });
-startBtn.addEventListener('click', async () => {
+async function startTraining() {
+  if (saving || (session && !finished)) return;
   startBtn.disabled = true;
+  repeatBtn.disabled = true;
+  repeatBtn.classList.add('d-none');
+  finishBtn.classList.remove('btn-success');
+  finishBtn.classList.add('btn-outline-light');
+  finishBtn.textContent = 'Новая тренировка';
   message.classList.add('d-none');
   try {
     const created = await api('/sessions', {
@@ -306,6 +317,9 @@ startBtn.addEventListener('click', async () => {
     hiddenInput.disabled = true;
     events = [];
     position = errors = combo = maxCombo = 0;
+    document.getElementById('ui-wpm').textContent = '0';
+    document.getElementById('ui-accuracy').textContent = '100%';
+    document.getElementById('ui-combo').textContent = '0';
     renderText(created.text);
     setupPanel.classList.add('d-none');
     typingPanel.classList.remove('d-none');
@@ -332,7 +346,10 @@ startBtn.addEventListener('click', async () => {
       error.message || 'Не удалось начать тренировку', true);
     startBtn.disabled = false;
   }
-});
+}
+
+startBtn.addEventListener('click', startTraining);
+repeatBtn.addEventListener('click', startTraining);
 
 hiddenInput.addEventListener('paste', event => event.preventDefault());
 hiddenInput.addEventListener('drop', event => event.preventDefault());
