@@ -24,10 +24,14 @@ const bonusCard = document.getElementById('session-bonus');
 const bonusName = document.getElementById('session-bonus-name');
 const bonusDetail = document.getElementById('session-bonus-detail');
 const logoutBtn = document.getElementById('logout-btn');
+const countdownOverlay = document.getElementById('start-countdown');
+const countdownValue = document.getElementById('start-countdown-value');
 const wrongSound = new Audio('/assets/audio/wrong.mp3');
 const levelSound = new Audio('/assets/audio/correct.mp3');
+const countdownSound = new Audio('/assets/audio/3-2-1-countdown.mp3');
 wrongSound.volume = .22;
 levelSound.volume = .55;
+countdownSound.volume = .55;
 
 let session = null;
 let characters = [];
@@ -53,6 +57,20 @@ function playSound(sound) {
     sound.currentTime = 0;
     sound.play().catch(() => {});
   } catch { /* Sound is optional if the browser blocks playback. */ }
+}
+
+async function showStartCountdown() {
+  countdownOverlay.classList.remove('d-none');
+  countdownValue.classList.remove('word');
+  playSound(countdownSound);
+  for (let seconds = 3; seconds > 0; seconds--) {
+    countdownValue.textContent = String(seconds);
+    countdownValue.classList.remove('tick');
+    void countdownValue.offsetWidth;
+    countdownValue.classList.add('tick');
+    await new Promise(resolve => window.setTimeout(resolve, 1000));
+  }
+  countdownValue.textContent = '…';
 }
 
 async function loadBonusHistory() {
@@ -226,7 +244,7 @@ async function saveResult() {
 }
 
 function typeCharacter(char) {
-  if (!session || saving || finished || position >= characters.length) return;
+  if (!session || !startedAt || saving || finished || position >= characters.length) return;
   const atMs = Math.max(0, Math.round(performance.now() - startedAt));
   if (atMs > session.max_duration_ms) {
     hiddenInput.blur();
@@ -263,7 +281,9 @@ startBtn.disabled = true;
 loadCatalog();
 loadIdentity();
 modeSelect.addEventListener('change', syncMode);
-textContainer.addEventListener('click', () => hiddenInput.focus());
+textContainer.addEventListener('click', () => {
+  if (startedAt && !finished) hiddenInput.focus();
+});
 startBtn.addEventListener('click', async () => {
   startBtn.disabled = true;
   message.classList.add('d-none');
@@ -278,22 +298,36 @@ startBtn.addEventListener('click', async () => {
         code_language: modeSelect.value === 'code' ? codeLanguageSelect.value : null,
       },
     });
-    await api(`/sessions/${created.public_id}/start`, { method: 'POST' });
     session = created;
+    startedAt = 0;
     finished = false;
     bonusAnnounced = false;
     bonusCard.classList.remove('active');
+    hiddenInput.disabled = true;
     events = [];
     position = errors = combo = maxCombo = 0;
     renderText(created.text);
     setupPanel.classList.add('d-none');
     typingPanel.classList.remove('d-none');
+    await showStartCountdown();
+    await api(`/sessions/${created.public_id}/start`, { method: 'POST' });
+    countdownValue.textContent = 'Старт!';
+    countdownValue.classList.add('word');
     startedAt = performance.now();
+    hiddenInput.disabled = false;
     updateBonus();
     window.clearInterval(bonusTimer);
     bonusTimer = window.setInterval(updateBonus, 250);
     hiddenInput.focus();
+    window.setTimeout(() => countdownOverlay.classList.add('d-none'), 450);
   } catch (error) {
+    countdownSound.pause();
+    countdownOverlay.classList.add('d-none');
+    typingPanel.classList.add('d-none');
+    setupPanel.classList.remove('d-none');
+    hiddenInput.disabled = true;
+    session = null;
+    startedAt = 0;
     showMessage(error.status === 401 ? 'Войдите в аккаунт через страницу входа, затем начните тренировку.' :
       error.message || 'Не удалось начать тренировку', true);
     startBtn.disabled = false;
