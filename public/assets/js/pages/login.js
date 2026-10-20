@@ -1,5 +1,5 @@
 // public/assets/js/pages/login.js
-import { api, isApiError } from './api.js';
+import { api, isApiError } from '../api.js';
 
 const form = document.getElementById('login-form');
 const errorBox = document.getElementById('form-error');
@@ -29,8 +29,8 @@ form.addEventListener('submit', async (e) => {
   e.preventDefault();
   hideError();
 
-  const email = form.email.value.trim().toLowerCase();
-  const password = form.password.value;
+  const email = form.elements.email.value.trim().toLowerCase();
+  const password = form.elements.password.value;
 
   if (!email) return showError('Введите email.');
   if (!password) return showError('Введите пароль.');
@@ -44,7 +44,7 @@ form.addEventListener('submit', async (e) => {
       method: 'POST',
       data: { email, password },
     });
-    // api.js уже обновил CSRF-токен в фоне. Просто уходим на профиль.
+    // Сервер создал новую сессию; следующий запрос получит новый CSRF-токен.
     window.location.assign('/profile');
   } catch (err) {
     if (isApiError(err)) {

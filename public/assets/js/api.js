@@ -33,11 +33,16 @@ export function clearCsrfToken() {
 export async function refreshCsrf() {
   if (csrfPromise) return csrfPromise;
   csrfPromise = (async () => {
-    const res = await fetch(`${API_BASE}/auth/csrf`, {
-      method: 'GET',
-      credentials: 'same-origin',
-      headers: { Accept: 'application/json' },
-    });
+    let res;
+    try {
+      res = await fetch(`${API_BASE}/auth/csrf`, {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: { Accept: 'application/json' },
+      });
+    } catch {
+      throw new ApiError(0, 'NETWORK_ERROR', 'Нет соединения с сервером');
+    }
     const body = await safeJson(res);
     if (!res.ok) throw toApiError(res, body);
     csrfToken = body?.data?.csrf_token ?? null;
@@ -99,10 +104,7 @@ export async function api(path, { method = 'GET', data, query, signal } = {}) {
     const err = toApiError(res, respBody);
 
 
-    if (err.code === 'CSRF_INVALID') {
-      csrfToken = null;
-      refreshCsrf().catch(() => {});
-    }
+    if (err.code === 'CSRF_INVALID') csrfToken = null;
 
     throw err;
   }
@@ -110,7 +112,6 @@ export async function api(path, { method = 'GET', data, query, signal } = {}) {
  
   if (path === '/auth/login' || path === '/auth/register' || path === '/auth/logout') {
     csrfToken = null;
-    refreshCsrf().catch(() => {});
   }
 
   return respBody?.data;

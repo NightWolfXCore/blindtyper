@@ -50,7 +50,7 @@ async function api(path, { method = 'GET', data } = {}) {
 }
 ```
 
-Этот фрагмент — пример для реализации `public/assets/js/api.js` участником фронтенда. Страницы — `public/pages/index.html`, `login.html`, `register.html`, `profile.html`, `leaderboard.html`; URL маршрутов перечислены в архитектуре. Ресурсы хранить в `public/assets/`. PHP подключает только фиксированный набор HTML-файлов; произвольные имена файлов из URL не исполняются.
+Рабочий API-клиент находится в `public/assets/js/api.js`. Страницы — `public/pages/index.html`, `login.html`, `register.html`, `profile.html`, `leaderboard.html`; URL маршрутов перечислены в архитектуре. Ресурсы лежат в `public/assets/`. PHP подключает только фиксированный набор HTML-файлов; произвольные имена файлов из URL не исполняются.
 
 Порядок тренировки: catalog → POST sessions → POST start → таймер и ввод → POST finish. `performance.now()` отсчитывается после успешного start. Для каждой попытки один event с seq=1,2,3…; ошибочный ввод сохраняется в журнале и не продвигает позицию. Не храните журнал на сервере по одному нажатию. После сетевой ошибки finish повторяйте **тот же массив**, а не создавайте новую тренировку. После успешного finish используйте серверный result/progress.
 

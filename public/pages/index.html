@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Тренажер — BlindTyper</title>
-  <link rel="stylesheet" href="/assets/vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="/assets/vendor/bootstrap/css/bootstrap.min.css">
   <style>
     body { background-color: #0f172a; color: #e2e8f0; font-family: sans-serif; }
     .text-display { font-family: 'Courier New', monospace; font-size: 1.5rem; line-height: 1.8; letter-spacing: 2px; background: #1e293b; padding: 2rem; border-radius: 1rem; border: 1px solid #334155; }
-    .char { color: #64748b; } /* Ожидаемый символ */
+    .char { color: #94a3b8; white-space: pre-wrap; } /* Ожидаемый символ */
     .char.correct { color: #10b981; } /* Правильный */
     .char.incorrect { color: #ef4444; background: rgba(239, 68, 68, 0.2); border-radius: 3px; } /* Ошибка */
     .char.active { border-bottom: 2px solid #3b82f6; } /* Текущий символ */
@@ -18,6 +18,8 @@
 </head>
 <body class="min-vh-100 p-4">
   <main class="container" style="max-width: 900px;">
+    <nav class="mb-4 d-flex gap-2"><a href="/login" class="btn btn-outline-light">Войти</a><a href="/profile" class="btn btn-outline-light">Профиль</a><a href="/leaderboard" class="btn btn-outline-light">Рейтинг</a></nav>
+    <div id="training-message" class="alert alert-info d-none" role="status"></div>
     <!-- Настройки (появляются до старта) -->
     <div id="setup-panel" class="card bg-dark border-secondary mb-4">
       <div class="card-body">
@@ -33,6 +35,15 @@
               <option value="ru">Русский</option>
               <option value="en">English</option>
             </select>
+          </div>
+          <div class="col-md-4">
+            <select id="difficulty-select" class="form-select bg-dark text-light border-secondary" aria-label="Сложность"></select>
+          </div>
+          <div class="col-md-4">
+            <select id="length-select" class="form-select bg-dark text-light border-secondary" aria-label="Длина"></select>
+          </div>
+          <div class="col-md-4 d-none" id="code-language-field">
+            <select id="code-language-select" class="form-select bg-dark text-light border-secondary" aria-label="Язык кода"></select>
           </div>
           <div class="col-md-4">
             <button id="start-btn" class="btn btn-primary w-100">Начать печатать</button>
@@ -54,10 +65,10 @@
       </div>
 
       <!-- Скрытый инпут для перехвата клавиш -->
-      <input type="text" id="hidden-input" class="opacity-0 position-absolute" autocomplete="off" style="pointer-events: none;">
+      <textarea id="hidden-input" class="opacity-0 position-absolute" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Поле ввода текста" style="width: 1px; height: 1px;"></textarea>
       
       <div class="text-center mt-4">
-        <button id="finish-btn" class="btn btn-outline-danger d-none">Завершить досрочно</button>
+        <button id="finish-btn" class="btn btn-outline-light" type="button">Новая тренировка</button>
       </div>
     </div>
   </main>

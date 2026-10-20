@@ -1,5 +1,5 @@
 // public/assets/js/pages/register.js
-import { api, isApiError } from './api.js';
+import { api, isApiError } from '../api.js';
 
 const form = document.getElementById('register-form');
 const errorBox = document.getElementById('form-error');
@@ -29,9 +29,9 @@ form.addEventListener('submit', async (e) => {
   e.preventDefault();
   hideError();
 
-  const email = form.email.value.trim().toLowerCase();
-  const displayName = form.display_name.value.trim();
-  const password = form.password.value;
+  const email = form.elements.email.value.trim().toLowerCase();
+  const displayName = form.elements.display_name.value.trim();
+  const password = form.elements.password.value;
 
   if (!email) return showError('Введите email.');
   if (!displayName) return showError('Введите имя.');
