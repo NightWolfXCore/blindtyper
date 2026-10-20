@@ -1,27 +1,46 @@
 import { api } from '../api.js';
 
-async function loadBoard() {
-  try {
-    const board = await api('/leaderboard?metric=cpm&period=week');
-    const tbody = document.getElementById('leaderboard-body');
+const metricSelect = document.getElementById('metric-select');
+const periodSelect = document.getElementById('period-select');
+const tbody = document.getElementById('leaderboard-body');
+const heading = document.getElementById('metric-heading');
+let requestNumber = 0;
 
+async function loadBoard() {
+  const currentRequest = ++requestNumber;
+  const metric = metricSelect.value;
+  const period = periodSelect.value;
+  heading.textContent = { wpm: 'WPM', cpm: 'CPM', accuracy: 'Точность', xp: 'XP' }[metric];
+  const row = document.createElement('tr');
+  const cell = document.createElement('td');
+  cell.colSpan = 3;
+  cell.className = 'text-light py-4';
+  cell.textContent = 'Загрузка…';
+  row.append(cell);
+  tbody.replaceChildren(row);
+  try {
+    const board = await api('/leaderboard', { query: { metric: metric === 'wpm' ? 'cpm' : metric, period } });
+    if (currentRequest !== requestNumber) return;
     if (board.items.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="4" class="text-muted py-4">Пока нет результатов</td></tr>';
+      cell.textContent = 'Пока нет результатов за выбранный период';
       return;
     }
-
     tbody.replaceChildren(...board.items.map(item => {
-      const row = document.createElement('tr');
-      for (const value of [item.rank, item.user.display_name, Math.round(item.value),
-        item.accuracy === null ? '-' : `${Math.round(item.accuracy)}%`]) {
-        const cell = document.createElement('td');
-        cell.textContent = String(value);
-        row.appendChild(cell);
+      const resultRow = document.createElement('tr');
+      const value = metric === 'wpm' ? item.wpm : metric === 'cpm' ? item.cpm : metric === 'accuracy' ? item.accuracy : item.value;
+      const displayValue = metric === 'accuracy' ? `${Number(value).toFixed(1)}%` : metric === 'xp' ? `${value} XP` : Number(value).toFixed(1);
+      for (const content of [item.rank, item.user.display_name, displayValue]) {
+        const resultCell = document.createElement('td');
+        resultCell.textContent = String(content);
+        resultRow.append(resultCell);
       }
-      return row;
+      return resultRow;
     }));
-  } catch (e) {
-    document.getElementById('leaderboard-body').innerHTML = '<tr><td colspan="4">Не удалось загрузить рейтинг</td></tr>';
+  } catch (error) {
+    if (currentRequest === requestNumber) cell.textContent = error.message || 'Не удалось загрузить рейтинг';
   }
 }
+
+metricSelect.addEventListener('change', loadBoard);
+periodSelect.addEventListener('change', loadBoard);
 loadBoard();

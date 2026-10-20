@@ -1,4 +1,5 @@
 import { api } from '../api.js';
+import { bonusNames, bonusDescriptions, celebrate, initLogout, notify } from '../game-ui.js';
 
 const setupPanel = document.getElementById('setup-panel');
 const typingPanel = document.getElementById('typing-panel');
@@ -17,6 +18,16 @@ const loginLink = document.getElementById('login-link');
 const profileLink = document.getElementById('profile-link');
 const levelStatus = document.getElementById('level-status');
 const modeHelp = document.getElementById('mode-help');
+const greeting = document.getElementById('greeting');
+const homeBonuses = document.getElementById('home-bonuses');
+const bonusCard = document.getElementById('session-bonus');
+const bonusName = document.getElementById('session-bonus-name');
+const bonusDetail = document.getElementById('session-bonus-detail');
+const logoutBtn = document.getElementById('logout-btn');
+const wrongSound = new Audio('/assets/audio/wrong.mp3');
+const levelSound = new Audio('/assets/audio/correct.mp3');
+wrongSound.volume = .22;
+levelSound.volume = .55;
 
 let session = null;
 let characters = [];
@@ -31,6 +42,57 @@ let saving = false;
 let finished = false;
 let modes = [];
 let currentLevel = 1;
+let bonusTimer = null;
+let bonusAnnounced = false;
+let lastWrongSound = 0;
+
+initLogout();
+
+function playSound(sound) {
+  try {
+    sound.currentTime = 0;
+    sound.play().catch(() => {});
+  } catch { /* Sound is optional if the browser blocks playback. */ }
+}
+
+async function loadBonusHistory() {
+  try {
+    const history = await api('/me/bonuses');
+    const last = history.items[0];
+    homeBonuses.textContent = last
+      ? `Последний полученный бонус: ${bonusNames[last.type] || last.type}. В следующей тренировке выпадет случайный бонус.`
+      : 'Во время тренировки выпадет случайный бонус. Полученные бонусы появятся в профиле.';
+  } catch {
+    homeBonuses.textContent = 'Во время тренировки может появиться случайный бонус.';
+  }
+}
+
+function updateBonus() {
+  if (!session || finished || !startedAt) return;
+  const bonus = session.bonuses?.[0];
+  if (!bonus) return;
+  const elapsed = performance.now() - startedAt;
+  if (elapsed < bonus.starts_at_ms) {
+    bonusName.textContent = 'Бонус скоро появится';
+    bonusDetail.textContent = `До бонуса ${Math.ceil((bonus.starts_at_ms - elapsed) / 1000)} с`;
+    return;
+  }
+  if (elapsed < bonus.ends_at_ms) {
+    bonusCard.classList.add('active');
+    bonusName.textContent = bonusNames[bonus.type] || bonus.type;
+    const boostedWpm = Math.round((position / Math.max(1, elapsed) * 12000) * 1.5);
+    const speedText = bonus.type === 'speed_boost' ? ` · игровой темп ${boostedWpm} WPM` : '';
+    bonusDetail.textContent = `${bonusDescriptions[bonus.type] || ''}${speedText} · ещё ${Math.ceil((bonus.ends_at_ms - elapsed) / 1000)} с`;
+    if (!bonusAnnounced) {
+      notify(`Новый бонус: ${bonusNames[bonus.type] || bonus.type}!`, 'bonus');
+      bonusAnnounced = true;
+    }
+    return;
+  }
+  bonusCard.classList.remove('active');
+  bonusName.textContent = 'Бонус завершён';
+  bonusDetail.textContent = 'Продолжайте печатать до конца упражнения.';
+}
 
 function showMessage(text, isError = false) {
   message.textContent = text;
@@ -87,14 +149,18 @@ async function loadIdentity() {
     const user = await api('/me');
     currentLevel = user.level;
     levelStatus.textContent = `Ваш уровень: ${user.level} · Опыт: ${user.total_xp} XP`;
+    greeting.textContent = `С возвращением, ${user.display_name}!`;
     profileLink.textContent = `${user.display_name} · профиль`;
     profileLink.classList.remove('d-none');
     loginLink.classList.add('d-none');
+    logoutBtn.classList.remove('d-none');
+    loadBonusHistory();
     syncMode();
   } catch (error) {
     levelStatus.textContent = error.status === 401
       ? 'Вы не вошли в аккаунт. Войдите, чтобы сохранять прогресс.'
       : 'Не удалось загрузить ваш уровень.';
+    greeting.textContent = 'Добро пожаловать в BlindTyper!';
     if (error.status !== 401) profileLink.classList.remove('d-none');
   }
 }
@@ -128,10 +194,27 @@ async function saveResult() {
       method: 'POST', data: { events },
     });
     finished = true;
+    window.clearInterval(bonusTimer);
+    bonusCard.classList.remove('active');
+    bonusName.textContent = 'Тренировка завершена';
+    bonusDetail.textContent = result.result.bonuses_applied?.length
+      ? `Получен бонус: ${result.result.bonuses_applied.map(type => bonusNames[type] || type).join(', ')}`
+      : 'Бонус не успел сработать. Попробуйте ещё раз.';
     document.getElementById('ui-wpm').textContent = String(Math.round(result.result.wpm));
     document.getElementById('ui-accuracy').textContent = `${Math.round(result.result.accuracy)}%`;
     document.getElementById('ui-combo').textContent = String(result.result.max_combo);
     showMessage(`Результат сохранён: ${result.result.xp_earned} XP. Скорость ${Math.round(result.result.cpm)} CPM.`);
+    if (result.progress.level > currentLevel) {
+      playSound(levelSound);
+      celebrate();
+      notify(`Новый уровень: ${result.progress.level}!`, 'success');
+    }
+    for (const achievement of result.new_achievements || []) {
+      notify(`Новое достижение: ${achievement.title}`, 'success');
+    }
+    currentLevel = result.progress.level;
+    levelStatus.textContent = `Ваш уровень: ${result.progress.level} · Опыт: ${result.progress.total_xp} XP`;
+    loadBonusHistory();
     finishBtn.textContent = 'Новая тренировка';
   } catch (error) {
     showMessage(`${error.message || 'Не удалось сохранить результат'}. Повторите сохранение.`, true);
@@ -168,6 +251,10 @@ function typeCharacter(char) {
     span.classList.add('incorrect');
     errors++;
     combo = 0;
+    if (performance.now() - lastWrongSound > 130) {
+      playSound(wrongSound);
+      lastWrongSound = performance.now();
+    }
   }
   updateCounters();
 }
@@ -193,12 +280,18 @@ startBtn.addEventListener('click', async () => {
     });
     await api(`/sessions/${created.public_id}/start`, { method: 'POST' });
     session = created;
+    finished = false;
+    bonusAnnounced = false;
+    bonusCard.classList.remove('active');
     events = [];
     position = errors = combo = maxCombo = 0;
     renderText(created.text);
     setupPanel.classList.add('d-none');
     typingPanel.classList.remove('d-none');
     startedAt = performance.now();
+    updateBonus();
+    window.clearInterval(bonusTimer);
+    bonusTimer = window.setInterval(updateBonus, 250);
     hiddenInput.focus();
   } catch (error) {
     showMessage(error.status === 401 ? 'Войдите в аккаунт через страницу входа, затем начните тренировку.' :

@@ -19,6 +19,11 @@
       <a href="/profile" class="btn btn-outline-light">В профиль</a>
     </nav>
 
+    <div class="row g-3 mb-3">
+      <div class="col-sm-6"><label class="form-label text-light" for="metric-select">Тип рейтинга</label><select id="metric-select" class="form-select bg-dark text-light border-secondary"><option value="wpm">Скорость · WPM</option><option value="cpm">Скорость · CPM</option><option value="accuracy">Точность</option><option value="xp">Опыт · XP</option></select></div>
+      <div class="col-sm-6"><label class="form-label text-light" for="period-select">Период</label><select id="period-select" class="form-select bg-dark text-light border-secondary"><option value="today">Сегодня</option><option value="week" selected>Эта неделя</option><option value="all">Всё время</option></select></div>
+    </div>
+    <p class="small text-light">Периоды считаются по UTC. Скорость и точность — лучший результат игрока за период, XP — сумма опыта. В рейтинг попадают только зачётные тренировки.</p>
     <div class="card bg-transparent border-secondary">
       <div class="card-body p-0">
         <table class="table table-dark table-hover mb-0 text-center align-middle">
@@ -26,13 +31,12 @@
             <tr>
               <th>#</th>
               <th>Игрок</th>
-              <th>CPM</th>
-              <th>Точность</th>
+              <th id="metric-heading">WPM</th>
             </tr>
           </thead>
           <tbody id="leaderboard-body">
             <!-- Сюда JS вставит строки -->
-            <tr><td colspan="4" class="text-muted py-4">Загрузка...</td></tr>
+            <tr><td colspan="3" class="text-light py-4">Загрузка...</td></tr>
           </tbody>
         </table>
       </div>

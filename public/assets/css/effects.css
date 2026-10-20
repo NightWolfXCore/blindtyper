@@ -1,0 +1,18 @@
+.toast-stack { position: fixed; right: 1rem; bottom: 1rem; z-index: 1080; display: grid; gap: .6rem; width: min(22rem, calc(100vw - 2rem)); pointer-events: none; }
+.game-toast { color: #fff; background: #1e293b; border: 1px solid #60a5fa; border-radius: .75rem; box-shadow: 0 12px 32px #0008; padding: .8rem 1rem; animation: toast-in .28s ease-out both; }
+.game-toast.success { border-color: #34d399; }
+.game-toast.bonus { border-color: #fbbf24; }
+.game-toast.exit { animation: toast-out .25s ease-in both; }
+.bonus-card { color: #f8fafc; background: #1e293b; border: 1px solid #475569; border-radius: .75rem; padding: .9rem 1rem; }
+.bonus-card.active { border-color: #fbbf24; box-shadow: 0 0 0 2px #fbbf2440; animation: bonus-pulse 1.4s ease-in-out infinite; }
+.bonus-card p { margin-bottom: 0; }
+.confetti-layer { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 1070; }
+.confetti-piece { position: absolute; top: -1.5rem; width: .5rem; height: .9rem; opacity: 0; animation: confetti-fall var(--duration) ease-in var(--delay) forwards; }
+@keyframes toast-in { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes toast-out { to { transform: translateY(12px); opacity: 0; } }
+@keyframes bonus-pulse { 50% { box-shadow: 0 0 0 5px #fbbf2420; } }
+@keyframes confetti-fall { 10% { opacity: 1; } to { transform: translate3d(var(--drift), 110vh, 0) rotate(var(--turn)); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .game-toast, .game-toast.exit, .bonus-card.active, .confetti-piece { animation: none; }
+  .confetti-layer { display: none; }
+}

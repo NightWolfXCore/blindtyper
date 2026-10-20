@@ -44,8 +44,9 @@ final class TrainingService
             $bytes[8] = chr((ord($bytes[8]) & 63) | 128);
             $hex = bin2hex($bytes);
             $id = substr($hex, 0, 8) . '-' . substr($hex, 8, 4) . '-' . substr($hex, 12, 4) . '-' . substr($hex, 16, 4) . '-' . substr($hex, 20);
-            $start = random_int(10, 30) * 1000;
-            $bonuses = [['type' => 'double_xp', 'starts_at_ms' => $start, 'ends_at_ms' => $start + 10000]];
+            $start = random_int(3, 8) * 1000;
+            $type = random_int(0, 1) === 0 ? 'double_xp' : 'speed_boost';
+            $bonuses = [['type' => $type, 'starts_at_ms' => $start, 'ends_at_ms' => $start + 10000]];
             $row = $this->sessions->create($id, $userId, $exercise, $options, $bonuses, $this->clock->now());
             return ['public_id' => $id, 'status' => 'created', 'text' => $text, 'text_length' => (int) $row['text_length'], 'mode' => $row['mode'],
                 'language' => $row['language'], 'difficulty' => $row['difficulty'], 'code_language' => $row['code_language'],

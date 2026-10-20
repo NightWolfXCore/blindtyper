@@ -1,4 +1,7 @@
 import { api } from '../api.js';
+import { bonusNames, bonusDescriptions, initLogout } from '../game-ui.js';
+
+initLogout();
 
 async function loadProfile() {
   try {
@@ -14,6 +17,27 @@ async function loadProfile() {
 
     const stats = await api('/me/stats?days=30');
     document.getElementById('stat-cpm').textContent = `${Math.round(stats.totals.best_cpm || 0)} CPM`;
+
+    const bonuses = await api('/me/bonuses');
+    const bonusContainer = document.getElementById('profile-bonuses');
+    if (bonuses.items.length === 0) {
+      bonusContainer.textContent = 'Бонусы появятся здесь после тренировки, в которой они сработали.';
+    } else {
+      bonusContainer.replaceChildren(...bonuses.items.map(bonus => {
+        const column = document.createElement('div');
+        column.className = 'col-md-6';
+        const card = document.createElement('div');
+        card.className = 'bonus-card h-100';
+        const title = document.createElement('strong');
+        title.textContent = bonusNames[bonus.type] || bonus.type;
+        const details = document.createElement('p');
+        details.className = 'small mt-1';
+        details.textContent = `${bonusDescriptions[bonus.type] || ''} · ${new Date(bonus.earned_at).toLocaleDateString('ru-RU')}`;
+        card.append(title, details);
+        column.append(card);
+        return column;
+      }));
+    }
 
     const ach = await api('/me/achievements');
     const container = document.getElementById('achievements-container');

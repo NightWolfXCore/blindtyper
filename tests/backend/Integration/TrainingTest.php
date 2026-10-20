@@ -29,6 +29,18 @@ final class TrainingTest extends DatabaseTestCase
         }
     }
 
+    public function testEarnedBonusesAppearInPrivateHistory(): void
+    {
+        $id = $this->player();
+        $other = $this->player('bonus-other@example.org');
+        $session = $this->create($id);
+        $type = $session['bonuses'][0]['type'];
+        $result = $this->complete($id, $session);
+        self::assertSame([$type], $result['result']['bonuses_applied']);
+        self::assertSame($type, $this->read->bonuses($id)['items'][0]['type']);
+        self::assertSame([], $this->read->bonuses($other)['items']);
+    }
+
     public function testOwnershipAndLockedModes(): void
     {
         $id = $this->player();

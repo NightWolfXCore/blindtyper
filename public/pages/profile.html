@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Профиль — BlindTyper</title>
   <link rel="stylesheet" href="/assets/vendor/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/assets/css/effects.css">
   <style>
     body { background-color: #0f172a; color: #e2e8f0; }
     .card { background-color: #1e293b; border-color: #334155; color: #fff; }
@@ -15,9 +16,10 @@
   <main class="container" style="max-width: 800px;">
     <nav class="mb-4 d-flex justify-content-between align-items-center">
       <h1 class="h3 text-light m-0">Мой профиль</h1>
-      <div>
+      <div class="d-flex gap-2 flex-wrap">
         <a href="/" class="btn btn-outline-primary me-2">К тренажеру</a>
         <a href="/leaderboard" class="btn btn-outline-light">Рейтинг</a>
+        <button id="logout-btn" type="button" class="btn btn-outline-light">Выйти</button>
       </div>
     </nav>
 
@@ -43,6 +45,9 @@
         </div>
       </div>
     </div>
+
+    <h3 class="h5 text-light mb-3">Полученные бонусы</h3>
+    <div id="profile-bonuses" class="row g-3 mb-4" aria-live="polite"><p class="text-light">Загрузка…</p></div>
 
     <h3 class="h5 text-light mb-3">Достижения</h3>
     <div class="row g-3" id="achievements-container">

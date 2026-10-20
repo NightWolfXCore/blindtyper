@@ -63,7 +63,7 @@ final class ApiController
             )];
         }
         // Do not let a misspelled public route masquerade as an authentication failure.
-        $known = ($method === 'GET' && in_array($path, ['/me', '/me/stats', '/me/achievements', '/sessions'], true))
+        $known = ($method === 'GET' && in_array($path, ['/me', '/me/stats', '/me/achievements', '/me/bonuses', '/sessions'], true))
             || ($method === 'POST' && in_array($path, ['/auth/logout', '/sessions'], true))
             || preg_match('~^/sessions/[0-9a-f-]{36}(?:/(?:start|finish))?$~D', $path);
         if (!$known) {
@@ -83,6 +83,9 @@ final class ApiController
         }
         if ($method === 'GET' && $path === '/me/achievements') {
             return [200, $this->read->achievements($userId)];
+        }
+        if ($method === 'GET' && $path === '/me/bonuses') {
+            return [200, $this->read->bonuses($userId)];
         }
         if ($method === 'GET' && $path === '/sessions') {
             return [200, $this->sessions->history($userId, $request->integer('page', 1, 1, 1000000), $request->integer('per_page', 20, 1, 100))];
